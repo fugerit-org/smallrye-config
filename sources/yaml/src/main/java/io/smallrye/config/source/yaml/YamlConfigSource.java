@@ -16,11 +16,13 @@ import java.util.stream.Collectors;
 
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.Tag;
 
 import io.smallrye.common.classloader.ClassPathUtils;
 import io.smallrye.common.constraint.Assert;
+import io.smallrye.config.ConfigValidationException;
 import io.smallrye.config.common.MapBackedConfigSource;
 
 /**
@@ -67,7 +69,8 @@ public class YamlConfigSource extends MapBackedConfigSource {
         Assert.checkNotNullParam("inputStream", inputStream);
         final Map<String, String> yamlInput = new TreeMap<>();
         try {
-            final Iterable<Object> objects = new Yaml(new StringConstructor(new LoaderOptions())).loadAll(inputStream);
+            final Iterable<Object> objects = new Yaml(new StringConstructor(YamlConfigSourceUtils.newYamlLoaderOptions()))
+                    .loadAll(inputStream);
             for (Object object : objects) {
                 if (object instanceof Map) {
                     yamlInput.putAll(yamlInputToMap((Map<Object, Object>) object));
@@ -80,7 +83,13 @@ public class YamlConfigSource extends MapBackedConfigSource {
             } catch (Throwable t2) {
                 t.addSuppressed(t2);
             }
-            throw t;
+            if (t instanceof DuplicateKeyException) {
+                ConfigValidationException cve = YamlConfigSourceUtils.convertException((DuplicateKeyException) t);
+                cve.addSuppressed(t);
+                throw cve;
+            } else {
+                throw t;
+            }
         }
         return yamlInput;
     }
@@ -88,13 +97,18 @@ public class YamlConfigSource extends MapBackedConfigSource {
     @SuppressWarnings("unchecked")
     private static Map<String, String> stringToMap(String str) {
         final Map<String, String> yamlInput = new TreeMap<>();
-        final Iterable<Object> objects = new Yaml(new StringConstructor(new LoaderOptions())).loadAll(str);
-        for (Object object : objects) {
-            if (object instanceof Map) {
-                yamlInput.putAll(yamlInputToMap((Map<Object, Object>) object));
+        try {
+            final Iterable<Object> objects = new Yaml(new StringConstructor(YamlConfigSourceUtils.newYamlLoaderOptions()))
+                    .loadAll(str);
+            for (Object object : objects) {
+                if (object instanceof Map) {
+                    yamlInput.putAll(yamlInputToMap((Map<Object, Object>) object));
+                }
             }
+            return yamlInput;
+        } catch (DuplicateKeyException dke) {
+            throw YamlConfigSourceUtils.convertException(dke);
         }
-        return yamlInput;
     }
 
     private static Map<String, String> yamlInputToMap(final Map<Object, Object> yamlInput) {

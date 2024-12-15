@@ -18,10 +18,12 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.microprofile.config.spi.Converter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.Yaml;
 
 import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.ConfigValidationException;
 import io.smallrye.config.SmallRyeConfig;
 import io.smallrye.config.SmallRyeConfigBuilder;
 
@@ -374,6 +376,28 @@ class YamlConfigSourceTest {
         assertEquals(LocalDateTime.of(2010, 10, 10, 10, 10, 10), config.getValue("dateTime", LocalDateTime.class));
         assertEquals(ZonedDateTime.of(2020, 10, 10, 10, 10, 10, 0, ZoneId.of("-5")),
                 config.getValue("zonedDateTime", ZonedDateTime.class));
+    }
+
+    @Test
+    void forbidDuplicateKeys() {
+        String yaml = "quarkus:\n" +
+                "  banner:\n" +
+                "    enabled: false\n" +
+                "  banner:\n" +
+                "    enabled: true\n";
+
+        SmallRyeConfig config = new SmallRyeConfigBuilder()
+                .withSources(new YamlConfigSource("yaml", yaml))
+                .build();
+
+        // property expected with the last value found
+        Assertions.assertTrue(Boolean.parseBoolean(config.getConfigSource("yaml").get().getValue("quarkus.banner.enabled")));
+
+        // test with duplicate keys disabled
+        System.setProperty(YamlConfigSourceUtils.SYS_PROP_FORBID_DUPLICATES, Boolean.TRUE.toString());
+
+        // expected DuplicateKeyException on ConfigSource loading
+        Assertions.assertThrows(ConfigValidationException.class, () -> new YamlConfigSource("yaml", yaml));
     }
 
     public static class Users {
