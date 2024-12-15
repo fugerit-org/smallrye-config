@@ -11,7 +11,7 @@ import io.smallrye.config._private.ConfigLogging;
  * Class responsible for adding some configuration features to ConfigValueProperties
  *
  * Setting system property :
- * smallrye.config.forbidDuplicateKeys=true (default false)
+ * smallrye.config.forbid-duplicate-keys=true (default false)
  * A ConfigValidationException will be raised if a duplicate key is found in the same config source.
  *
  * https://github.com/smallrye/smallrye-config/issues/1269
@@ -29,7 +29,7 @@ public class ConfigValuePropertiesUtils {
     /**
      * If set to true, a ConfigValidationException will be raised if a duplicate key is found in the same config source.
      */
-    public static final String SYS_PROP_FORBID_DUPLICATES = "smallrye.config.forbidDuplicateKeys";
+    public static final String SYS_PROP_FORBID_DUPLICATES = "smallrye.config.forbid-duplicate-keys";
 
     /**
      * Converts a single message to a {@link ConfigValidationException}

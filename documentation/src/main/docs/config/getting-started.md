@@ -45,7 +45,7 @@ goodbye.message=bye
 If system property :
 
 ```
-smallrye.config.forbidDuplicateKeys
+smallrye.config.forbid-duplicate-keys
 ```
 
 Is set to *true* 
@@ -55,7 +55,7 @@ A ConfigValidationException will be raised if a duplicate key is found in the sa
 i.e. 
 
 ```
--Dsmallrye.config.forbidDuplicateKeys=true
+-Dsmallrye.config.forbid-duplicate-keys=true
 ```
 
 NOTE: It applies to both *properties* and *YAML* config sources.
