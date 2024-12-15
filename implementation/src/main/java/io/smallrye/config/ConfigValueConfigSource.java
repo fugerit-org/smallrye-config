@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
@@ -340,9 +341,12 @@ public interface ConfigValueConfigSource extends ConfigSource {
         private final String configSourceName;
         private final int configSourceOrdinal;
 
+        private Consumer<ConfigValue> checkPutResult;
+
         public ConfigValueProperties(final String configSourceName, final int configSourceOrdinal) {
             this.configSourceName = configSourceName;
             this.configSourceOrdinal = configSourceOrdinal;
+            this.checkPutResult = ConfigValuePropertiesUtils.newConfigValueCheck();
         }
 
         public synchronized void load(Reader reader) throws IOException {
@@ -401,14 +405,15 @@ public interface ConfigValueConfigSource extends ConfigSource {
                 }
                 String key = loadConvert(lr.lineBuf, 0, keyLen, convtBuf);
                 String value = loadConvert(lr.lineBuf, valueStart, limit - valueStart, convtBuf);
-                put(key, ConfigValue.builder()
-                        .withName(key)
-                        .withValue(value)
-                        .withRawValue(value)
-                        .withConfigSourceName(configSourceName)
-                        .withConfigSourceOrdinal(configSourceOrdinal)
-                        .withLineNumber(lr.lineNumber)
-                        .build());
+                this.checkPutResult.accept(
+                        put(key, ConfigValue.builder()
+                                .withName(key)
+                                .withValue(value)
+                                .withRawValue(value)
+                                .withConfigSourceName(configSourceName)
+                                .withConfigSourceOrdinal(configSourceOrdinal)
+                                .withLineNumber(lr.lineNumber)
+                                .build()));
             }
         }
 
