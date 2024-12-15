@@ -34,8 +34,8 @@ public class ConfigValuePropertiesUtils {
     /**
      * Converts a single message to a {@link ConfigValidationException}
      *
-     * @param message   the message.
-     * @return          the ConfigValidationException
+     * @param message the message.
+     * @return the ConfigValidationException
      */
     public static ConfigValidationException createConfigValidationException(final String message) {
         ConfigValidationException.Problem[] problems = {
@@ -47,7 +47,7 @@ public class ConfigValuePropertiesUtils {
     /**
      * Creates a consumer to handle duplicate keys
      *
-     * @return          the consumer checking duplicate keys
+     * @return the consumer checking duplicate keys
      */
     public static Consumer<ConfigValue> newConfigValueCheck() {
         if (Boolean.parseBoolean(System.getProperty(SYS_PROP_FORBID_DUPLICATES, Boolean.FALSE.toString()))) {

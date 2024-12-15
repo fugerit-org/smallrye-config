@@ -40,6 +40,26 @@ greeting.message=hello
 goodbye.message=bye
 ```
 
+### Duplicate keys check
+
+If system property :
+
+```
+smallrye.config.forbidDuplicateKeys
+```
+
+Is set to *true* 
+
+A ConfigValidationException will be raised if a duplicate key is found in the same config source.
+
+i.e. 
+
+```
+-Dsmallrye.config.forbidDuplicateKeys=true
+```
+
+NOTE: It applies to both *properties* and *YAML* config sources.
+
 ### Additional Config Sources
 
 SmallRye Config provides additional extensions which cover other configuration formats and stores:

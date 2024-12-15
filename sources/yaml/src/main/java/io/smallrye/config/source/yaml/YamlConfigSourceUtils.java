@@ -37,7 +37,7 @@ public class YamlConfigSourceUtils {
      * Convert a DuplicateKeyException to ConfigValidationException.
      *
      * @param dke the duplicate key exception
-     * @return  the converted config validation exception
+     * @return the converted config validation exception
      */
     public static ConfigValidationException convertException(DuplicateKeyException dke) {
         return ConfigValuePropertiesUtils.createConfigValidationException(String.format(
